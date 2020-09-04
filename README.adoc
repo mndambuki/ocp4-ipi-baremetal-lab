@@ -1,0 +1,150 @@
+= Openshift 4
+
+Deploy Openshift 4 on libvirt using BMO (Baremetal Operator) with different BMC interfaces.
+
+== Minimum hardware requirements
+
+The minimun requirements allow to deploy a 3 master/worker nodes cluster.
+
+- RAM 32GB
+- vCPU 12
+- Storage 300GB
+
+== Software requirements
+
+- Libvirt 5.6.0+
+- Terraform 0.12.26+
+- Libvirt provider for Terraform 0.6.2+
+- Openshift client 4.4+
+- FCCT 0.5.0+
+- UnZip 6.00+
+- YQ parser 3.3.2+
+
+=== Install libvirt
+
+Install libvirt following https://docs.fedoraproject.org/en-US/quick-docs/getting-started-with-virtualization/index.html[official documentacion].
+
+=== Install requirements
+
+The `+requirements.sh+` will install all needed requirements.
+
+[source,bash]
+----
+make require
+----
+
+== Setup Libvirt
+
+Add your user to the `+libvirt+` group.
+
+[source,bash]
+----
+usermod -a -G libvirt maintuser
+----
+
+Use `+virsh+` command utility to configure libvirt.
+
+[source,bash]
+----
+export LIBVIRT_DEFAULT_URI="qemu:///system"
+----
+
+Check if libvirt is running.
+
+[source,bash]
+----
+virsh version --daemon
+----
+
+=== QEMU permissions
+
+The provider does not currently support to create volumes with different mode than `+root:root+` so QEMU agent must run as priviledged.
+
+[source,bash]
+----
+sed -i '/^#user/s/^#//' /etc/libvirt/qemu.conf
+sed -i '/^#group/s/^#//' /etc/libvirt/qemu.conf
+----
+
+Restart libvirt daemon.
+
+[source,bash]
+----
+systemctl restart libvirtd
+----
+
+== Firewalld
+
+Allow `+http+`, `+tftp+`, `+ipmi+` and `ironic` traffic in libvirt interfaces.
+
+[source,bash]
+----
+firewall-cmd --zone=libvirt --add-service=http --permanent
+firewall-cmd --zone=libvirt --add-service=tftp --permanent
+firewall-cmd --zone=libvirt --add-port=8080/tcp --permanent # http
+firewall-cmd --zone=libvirt --add-port=6385/tcp --permanent # ironic-api
+firewall-cmd --zone=libvirt --add-port=5050/tcp --permanent # ironic-inspector
+firewall-cmd --zone=libvirt --add-port=8088-8089/tcp --permanent # ironic-conductor
+firewall-cmd --zone=libvirt --add-port=6230-6250/udp --permanent # ipmi
+firewall-cmd --reload
+----
+
+== Deploy cluster
+
+Get your pull secret from `+cloud.redhat.com+` and copy it to the `+src/ocp/${ENV}+` folder (create the folder for your environment if it does not exist).
+
+[source,bash]
+----
+src/ocp
+ ├── dev
+ │   └── pull-secret.json
+ ├── pre
+ │   └── pull-secret.json
+ └── pro
+     └── pull-secret.json
+----
+
+Deploy Openshift infrastructure.
+
+[source,bash]
+----
+make
+----
+
+For a disconnected installation, mirror the Openshift registry (change OCP_VERSION value).
+
+[source,bash]
+----
+export OCP_VERSION="x.y.z-arch"
+
+./upload-mirror-images.sh \
+    registry.ocp.bmlab.int:5000/ocp4/release ${OCP_VERSION} src/registry/pull-secret.json
+----
+
+Download and install https://docs.openstack.org/virtualbmc[VirtualBMC] to manage libvirt nodes using `+ipmi+` protocol. After vbmc is correctly configured, run the following command.
+
+[source,bash]
+----
+./output/vmbc/attach-ipmi-hosts.sh
+----
+
+Deploy Openshift cluster.
+
+[source,bash]
+----
+./openshift-baremetal-install \
+    --dir output/openshift-install/localhost --log-level debug create cluster
+----
+
+Wait until the installation finishes to verify if the Openshift cluster has been correctly created.
+
+[source,bash]
+----
+export KUBECONFIG="$(pwd)/output/openshift-install/localhost/auth/kubeconfig"
+oc get nodes
+----
+
+== References
+
+- https://openshift-kni.github.io/baremetal-deploy
+- https://github.com/metal3-io/metal3-dev-env

@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+     <!-- Identity template -->
+    <xsl:template match="@* | node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@* | node()"/>
+        </xsl:copy>
+    </xsl:template>
+
+    <!-- Override for target element -->
+    <xsl:template match="ip[@family='ipv4']/dhcp">
+        <!-- Copy the element -->
+        <xsl:copy>
+            <!-- Add everything inside it -->
+            <xsl:apply-templates select="@* | *"/>
+            <!-- DHCP entries -->
+            <xsl:element name="host">
+                <xsl:attribute name="name">bootstrap.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:00:10</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.10</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="host">
+                <xsl:attribute name="name">master00.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:00:11</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.11</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="host">
+                <xsl:attribute name="name">master01.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:00:12</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.12</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="host">
+                <xsl:attribute name="name">master02.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:00:13</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.13</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="host">
+                <xsl:attribute name="name">worker00.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:01:01</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.101</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="host">
+                <xsl:attribute name="name">worker01.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:01:02</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.102</xsl:attribute>
+            </xsl:element>
+            <xsl:element name="host">
+                <xsl:attribute name="name">worker02.ocp.metal3.lab</xsl:attribute>
+                <xsl:attribute name="mac">AA:00:00:00:01:03</xsl:attribute>
+                <xsl:attribute name="ip">10.10.0.103</xsl:attribute>
+            </xsl:element>
+        </xsl:copy>
+    </xsl:template>
+
+</xsl:stylesheet>
