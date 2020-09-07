@@ -5,7 +5,7 @@ TF_FILES_PATH     := src
 TF_BACKEND_CONF   := configuration/backend
 TF_VARIABLES      := configuration/tfvars
 LIBVIRT_IMGS_PATH := src/storage/images
-OCP_VERSION       := 4.5.4
+OCP_VERSION       := 4.5.7
 OCP_RELEASE       := $(shell echo $(OCP_VERSION) | head -c 3)
 OCP_INSTALLER     := openshift-baremetal-install
 FCOS_VERSION      := 32.20200629.3.0
@@ -23,7 +23,7 @@ ifeq (,$(wildcard $(OCP_INSTALLER)))
 	@OCP_RELEASE_IMAGE=`curl -s https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$(OCP_VERSION)/release.txt | grep 'Pull From: quay.io' | awk '{ print $$NF }'`;\
 	oc adm release extract \
 		--command "openshift-baremetal-install" \
-		--registry-config "output/openshift-install/$${ENVIRONMENT}/pull-secret.json" \
+		--registry-config "src/openshift-install/$(ENVIRONMENT)/pull-secret.json" \
 		$${OCP_RELEASE_IMAGE};
 endif
 

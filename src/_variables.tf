@@ -26,6 +26,15 @@ variable "libvirt" {
   })
 }
 
+# DNS configuration
+variable "dns" {
+  description = "DNS configuration"
+  type = object({
+    domain = string,
+    server = string
+  })
+}
+
 # Libvirt network configuration for baremetal 
 variable "network_baremetal" {
   description = "Configuration for provisioning network"
@@ -49,20 +58,28 @@ variable "network_provisioning" {
   })
 }
 
-# DNS configuration
-variable "dns" {
-  description = "DNS configuration"
+# Openshift registry specification
+variable "ocp_registry" {
+  description = "Global configuration for Openshift registry"
   type = object({
-    domain = string,
-    server = string
+    id         = string,
+    base_img   = string,
+    version    = string,
+    username   = string,
+    password   = string,
+    repository = string,
+    vcpu       = number,
+    memory     = number,
+    size       = number,
+    port       = number
   })
 }
 
-# IPMI configuration
-variable "ipmi" {
-  description = "IPMI configuration"
+variable "ocp_registry_network" {
+  description = "Network configuration for Openshift registry"
   type = object({
-    username = string
+    ip  = string,
+    mac = string
   })
 }
 
@@ -87,25 +104,8 @@ variable "ocp_inventory" {
   description = "List of Openshift cluster nodes"
   type        = map(object({
     network_baremetal    = object({ ip=string, mac=string }),
-    network_provisioning = object({ ip=string, mac=string })
+    network_provisioning = object({ mac=string })
   }))
-}
-
-# Helper node specification
-variable "ocp_registry" {
-  description = "Configuration for Openshift registry virtual machine"
-  type = object({
-    id         = string,
-    base_img   = string,
-    version    = string,
-    username   = string,
-    password   = string,
-    repository = string,
-    vcpu       = number,
-    memory     = number,
-    size       = number,
-    port       = number
-  })
 }
 
 # Openshift masters specification

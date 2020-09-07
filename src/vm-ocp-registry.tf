@@ -3,9 +3,10 @@ locals {
     id       = format("ocp-%s", var.ocp_registry.id)
     hostname = var.ocp_registry.id
     fqdn     = format("%s.%s", var.ocp_registry.id, var.dns.domain)
-    ip       = lookup(var.ocp_inventory, var.ocp_registry.id).network_baremetal.ip
-    mac      = lookup(var.ocp_inventory, var.ocp_registry.id).network_baremetal.mac
+    ip       = var.ocp_registry_network.ip
+    mac      = var.ocp_registry_network.mac
   }
+
   ocp_registry_auth = {
     auths = {
       format("%s:%s", local.ocp_registry.fqdn, var.ocp_registry.port) = {
@@ -14,6 +15,7 @@ locals {
       }
     }
   }
+
   ocp_registry_tls = {
     certificate = format("%s%s",
       tls_locally_signed_cert.ocp_registry.cert_pem,
