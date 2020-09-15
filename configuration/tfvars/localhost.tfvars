@@ -36,6 +36,7 @@ ocp_cluster = {
   svcs_cidr   = "172.255.0.0/16"
   num_masters = 3
   num_workers = 3
+  bmc         = "redfish"
   api_vip     = "10.10.0.200"
   ingress_vip = "10.10.0.201"
 }

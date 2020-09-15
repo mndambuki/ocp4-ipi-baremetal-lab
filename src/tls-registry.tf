@@ -43,20 +43,14 @@ resource "tls_locally_signed_cert" "ocp_registry" {
 }
 
 resource "local_file" "ocp_registry_certificate_pem" {
-
-  count = var.DEBUG ? 1 : 0
-
-  filename             = format("output/tls/clients/ocp-registry/certificate.pem")
+  filename             = "output/tls/clients/ocp-registry/certificate.pem"
   content              = tls_locally_signed_cert.ocp_registry.cert_pem
   file_permission      = "0600"
   directory_permission = "0700"
 }
 
 resource "local_file" "ocp_registry_private_key_pem" {
-
-  count = var.DEBUG ? 1 : 0
-
-  filename             = format("output/tls/clients/ocp-registry/key.pem")
+  filename             = "output/tls/clients/ocp-registry/key.pem"
   content              = tls_private_key.ocp_registry.private_key_pem
   file_permission      = "0600"
   directory_permission = "0700"

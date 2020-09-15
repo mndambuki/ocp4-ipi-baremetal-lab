@@ -1,9 +1,3 @@
-resource "random_password" "bmc_master" {
-  count   = var.ocp_cluster.num_masters
-  length  = 16
-  special = false
-}
-
 locals {
   ocp_master = [
     for index in range(var.ocp_cluster.num_masters) :
@@ -17,12 +11,6 @@ locals {
         }
         network_provisioning = {
           mac = lookup(var.ocp_inventory, format("master%02d", index)).network_provisioning.mac
-        }
-        ipmi = {
-          ip   = var.network_baremetal.gateway
-          port = tostring(6230 + index)
-          user = "metal3"
-          pass = random_password.bmc_master[index].result
         }
       }
   ]

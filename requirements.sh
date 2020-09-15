@@ -10,6 +10,7 @@ TF_PROVIDERS_DIR="${HOME}/.terraform.d/plugins/registry.terraform.io/hashicorp"
 TF_PROVIDER_LIBVIRT_VERSION="0.6.2"
 TF_PROVIDER_LIBVIRT_RELEASE="v0.6.2/terraform-provider-libvirt-0.6.2+git.1585292411.8cbe9ad0.Fedora_28.x86_64"
 VBMC_VERSION="2.1.0"
+SUSHY_VERSION="0.12.0"
 OC_VERSION="4.5"
 
 # install_libvirt
@@ -127,6 +128,44 @@ function install_vbmc {
     return 0
 }
 
+# install_sushy_emulator <version>
+function install_sushy_emulator {
+    sushy_command="sushy-emulator"
+    sushy_version=${1}
+    sushy_systemd_dir=${2}
+
+    if ! (which ${sushy_command} &> /dev/null); then    
+        echo "Sushy tools v${sushy_version} are already installed"
+    else
+        echo "Installing Sushy tools v${sushy_version}..."
+
+        # Install Sushy tools
+        pip3 install --user sushy-tools==${sushy_version}
+
+        # Setup VirtualBMC server daemon
+        mkdir -p ${sushy_systemd_dir}
+        cat > ${sushy_systemd_dir}/sushyd.service <<-EOF
+			[Unit]
+			Description=Sushy Emulator Server Daemon
+			Wants=network-online.target
+			After=network-online.target
+
+			[Service]
+			ExecStart=/home/maintuser/.local/bin/sushy-emulator --config "${HOME}/.config/sushyd/emulator.conf" --libvirt-uri "qemu:///system"
+
+			[Install]
+			WantedBy=multi-user.target
+		EOF
+
+        systemctl --user daemon-reload
+        systemctl --user start sushyd
+
+        echo "Successfully installed!"
+    fi
+
+    return 0
+}
+
 # install_oc <version> <installation_dir> 
 function install_oc {
     oc_command="oc"
@@ -170,6 +209,9 @@ install_tf_provider \
 
 # Install VirtualBMC
 install_vbmc ${VBMC_VERSION} "${HOME}/.config/systemd/user"
+
+# Install Sushy emulator
+install_sushy_emulator ${SUSHY_VERSION} "${HOME}/.config/systemd/user"
 
 # Install Openshift client
 install_oc ${OC_VERSION} "${HOME}/bin"

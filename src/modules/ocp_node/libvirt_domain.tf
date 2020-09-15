@@ -1,15 +1,15 @@
-resource "libvirt_volume" "ocp_node" {
-  name   = format("%s-volume.qcow2", var.hostname)
-  pool   = var.libvirt_pool
-  size   = var.disk_size * pow(10, 9) # Bytes
-  format = "qcow2"
-}
-
 resource "libvirt_domain" "ocp_node" {
   name    = format("ocp-%s", var.hostname)
   vcpu    = var.cpu
   memory  = var.memory
   running = false
+
+  # UEFI
+  machine  = "q35"
+  firmware = "/usr/share/OVMF/OVMF_CODE.secboot.fd"
+  nvram {
+    file = format("/var/lib/libvirt/qemu/nvram/ocp-%s-vars.fd", var.hostname)
+  }
 
   disk {
     volume_id = libvirt_volume.ocp_node.id

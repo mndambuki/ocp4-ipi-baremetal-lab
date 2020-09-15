@@ -83,6 +83,7 @@ firewall-cmd --zone=libvirt --add-port=6385/tcp --permanent # ironic-api
 firewall-cmd --zone=libvirt --add-port=5050/tcp --permanent # ironic-inspector
 firewall-cmd --zone=libvirt --add-port=8088-8089/tcp --permanent # ironic-conductor
 firewall-cmd --zone=libvirt --add-port=6230-6250/udp --permanent # ipmi
+firewall-cmd --zone=libvirt --add-port=8000/tcp --permanent # redfish
 firewall-cmd --reload
 ----
 
@@ -145,3 +146,5 @@ oc get nodes
 
 - https://openshift-kni.github.io/baremetal-deploy
 - https://github.com/metal3-io/metal3-dev-env
+- https://docs.openstack.org/virtualbmc/latest/index.html
+- https://docs.openstack.org/sushy-tools/latest/index.html

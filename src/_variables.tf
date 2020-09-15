@@ -94,6 +94,7 @@ variable "ocp_cluster" {
     svcs_cidr   = string,
     num_masters = number,
     num_workers = number,
+    bmc         = string,
     api_vip     = string,
     ingress_vip = string
   })
