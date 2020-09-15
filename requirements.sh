@@ -120,7 +120,7 @@ function install_vbmc {
 		EOF
 
         systemctl --user daemon-reload
-        systemctl --user start vbmcd
+        systemctl --user enable --now vbmcd
 
         echo "Successfully installed!"
     fi
@@ -151,14 +151,14 @@ function install_sushy_emulator {
 			After=network-online.target
 
 			[Service]
-			ExecStart=/home/maintuser/.local/bin/sushy-emulator --config "${HOME}/.config/sushyd/emulator.conf" --libvirt-uri "qemu:///system"
+			ExecStart=${HOME}/.local/bin/sushy-emulator --config "${HOME}/.config/sushyd/emulator.conf" --libvirt-uri "qemu:///system"
 
 			[Install]
 			WantedBy=multi-user.target
 		EOF
 
         systemctl --user daemon-reload
-        systemctl --user start sushyd
+        systemctl --user enable --now sushyd
 
         echo "Successfully installed!"
     fi
